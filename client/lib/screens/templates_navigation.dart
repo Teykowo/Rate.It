@@ -18,8 +18,9 @@ class TemplatesNavPage extends StatefulWidget{
 // -------------------------------------------- -Page State Function --------------------------------------------
 class _TemplatesNavPageState extends State<TemplatesNavPage> {
   // String _searchBarParameters = '';
-  // String _genreBarParameter = '';
+  String? _genresBarParameter = '';
 
+  List<DropdownMenuEntry<String>> _genresList = <DropdownMenuEntry<String>>[];
   List<TemplateThumbnail> _templatesList = [];
 
   // ---------------------------------- Change Thumbnails List Function ----------------------------------
@@ -40,9 +41,38 @@ class _TemplatesNavPageState extends State<TemplatesNavPage> {
   }
   // ---------------------------------------------------------------------------------------------------
 
+  // ----------------------------------- Get genres from SQL servers -----------------------------------
+  void updateGenresList() async{
+    List<DropdownMenuEntry<String>> newGenresListDropDown = <DropdownMenuEntry<String>>[];
+
+    List<String> newGenresList = [
+      "Anime",
+      "Food",
+      "Architecture",
+      "Video Games",
+      "Movies",
+      "Nature",
+      "Music",
+      "Flags",
+      "Animals",
+      "Weapons",
+      "Miscellaneous",
+    ];
+
+    for (String genre in newGenresList){
+      newGenresListDropDown.add(DropdownMenuEntry<String>(value: genre, label: genre));
+    }
+
+    setState(() {
+      _genresList = newGenresListDropDown;
+    });
+  }
+  // ---------------------------------------------------------------------------------------------------
+
   // ---------------------------------- State Initialization Function ----------------------------------
   @override
   void initState() {
+    updateGenresList();
     updateThumbnailList();
     super.initState();
   }
@@ -83,38 +113,79 @@ class _TemplatesNavPageState extends State<TemplatesNavPage> {
             backgroundColor: Colors.blue.shade800,
             centerTitle: true,
             toolbarHeight: 200,
+            // ------------------------------ Center ------------------------------
             title: SizedBox(
               height: 100,
-              width: 500,
+              width: 900,
               child: ListView(
                 shrinkWrap: true,
-                children: const [
+                children: [
                   // --------------------------- App Bar Title ---------------------------
-                  Text("Navigate Templates",
+                  const Text("Navigate Templates",
                     textAlign: TextAlign.center,
                   ),
                   // ---------------------------------------------------------------------
-                  // ------------------------ Template Search Bar ------------------------
-                  Padding(
-                    padding: EdgeInsets.only(top: 20.0),
-                    child: SizedBox(
-                      height: 50,
-                      width: 100,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Search Templates',
-                          suffixIcon: Icon(
-                            Icons.search,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // ------------------------ Template search Bar ------------------------
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: SizedBox(
+                          height: 50,
+                          width: 500,
+                          child: TextField(
+                            decoration: InputDecoration(
+                              // --------------------- -focused Search Bar style ---------------------
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(100.0),
+                                borderSide: const BorderSide(
+                                  color: Color(0xfffbff00),
+                                  width: 2,
+                                ),
+                              ),
+                              // ---------------------------------------------------------------------
+
+                              // ----------------------- base Search Bar style -----------------------
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(100.0),
+                              ),
+                              // ---------------------------------------------------------------------
+                              labelText: 'Search Templates',
+                              suffixIcon: const Icon(
+                                Icons.search,
+                              ),
+                            ),
                           ),
-                        )
+                        ),
                       ),
-                    ),
+                      // ---------------------------------------------------------------------
+
+                      // ------------------------ Template Genre Menu ------------------------
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 30.0),
+                        child: DropdownMenu(
+                          initialSelection: " ",
+                          controller: TextEditingController(),
+                          label: const Text("Genres"),
+                          dropdownMenuEntries: _genresList,
+                          onSelected: (String? genre){
+                            setState(() {
+                              _genresBarParameter = genre;
+                            });
+                            updateGenresList();
+                            updateThumbnailList();
+                          },
+                        ),
+                      ),
+                      // ---------------------------------------------------------------------
+                    ],
                   ),
-                  // ---------------------------------------------------------------------
                 ],
               ),
             ),
+            // ---------------------------------------------------------------------
+            // ------------------------------ Trailing ------------------------------
             actions: [
               // ------------------------ Add Template Button ------------------------
               Padding(
@@ -133,6 +204,7 @@ class _TemplatesNavPageState extends State<TemplatesNavPage> {
               )
               // ---------------------------------------------------------------------
             ],
+            // ---------------------------------------------------------------------
           ),
           // ---------------------------------------------------------------------
 
